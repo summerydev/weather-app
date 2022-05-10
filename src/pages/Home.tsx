@@ -51,7 +51,7 @@ export default function Home() {
 <br />
           <div>
             <h1>Now {Math.floor(weather.main.temp - 273)}℃</h1>
-            <span>{weather.weather[0].main}</span>
+            <h2>{weather.weather[0].main}</h2>
           </div>
           <Sun>
             <span>
