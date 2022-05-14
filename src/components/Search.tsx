@@ -1,21 +1,39 @@
 import { useEffect, useState } from "react";
-import { resourceLimits } from "worker_threads";
 
 export default function Search() {
   const handleSearch = () => {};
   const [city, setCity] = useState<string>("서울");
   let cities = [];
-  const stream = new ReadableStream;
-  const reader = stream.getReader();
-let result = '';
+
   useEffect(() => {
     fetch(
-      "grpc-proxy-server-mkvo6j4wsq-du.a.run.app"
+      "https://grpc-proxy-server-mkvo6j4wsq-du.a.run.app/v1/regcodes?regcode_pattern=*00000000"
     )
       .then((res) => {
-          console.log(res)
+        const reader = res.body.getReader(); // why err
+        return new ReadableStream({
+          start(controller) {
+            return pump();
+
+            function pump() { // why err
+              return reader.read().then(({ done, value }) => {
+                // 더이상 읽을수 있는 data가 없다면 스트림을 닫는다
+                if (done) {
+                  controller.close();
+                  return;
+                }
+                // 다음 data chunk를 새로운 readable 스트림에 집어 넣음
+                controller.enqueue(value);
+                return pump();
+              });
+            }
+          },
+        });
       })
+      .then((stream) => new Response(stream))
+      .then((res) => res.json());
   }, []);
+
   return (
     <div>
       <form onSubmit={handleSearch}>
