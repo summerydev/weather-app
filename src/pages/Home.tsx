@@ -82,5 +82,5 @@ const Card = styled.div`
 
 const Sun = styled.div`
   position: relative;
-  top: 80px;
+  top: 50px;
 `;
