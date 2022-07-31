@@ -1,51 +1,64 @@
 import { useEffect, useState } from "react";
+import styled, { css } from "styled-components";
+
+const apiKey = process.env.REACT_APP_API_KEY;
+
+interface Weather {
+  id: any;
+  name: string;
+  weather: any;
+  main: any;
+  sys: any;
+}
 
 export default function Search() {
-  const handleSearch = () => {};
-  const [city, setCity] = useState<string>("서울");
-  let cities = [];
+  const url: string = `https://api.openweathermap.org/data/2.5/weather?q=Seoul&appid=${apiKey}`;
+  //"https://grpc-proxy-server-mkvo6j4wsq-du.a.run.app/v1/regcodes?regcode_pattern=*00000000"
 
-  useEffect(() => {
-    fetch(
-      "https://grpc-proxy-server-mkvo6j4wsq-du.a.run.app/v1/regcodes?regcode_pattern=*00000000"
-    )
-      .then((res) => {
-        const reader = res.body.getReader(); // why err
-        return new ReadableStream({
-          start(controller) {
-            return pump();
+  const [city, setCity] = useState<string>();
+  const [weather, setWeather] = useState<Weather>();
 
-            function pump() { // why err
-              return reader.read().then(({ done, value }) => {
-                // 더이상 읽을수 있는 data가 없다면 스트림을 닫는다
-                if (done) {
-                  controller.close();
-                  return;
-                }
-                // 다음 data chunk를 새로운 readable 스트림에 집어 넣음
-                controller.enqueue(value);
-                return pump();
-              });
-            }
-          },
+  const handleSearch = () => {
+    try {
+      fetch(url)
+        .then((res) => {
+          return res.json();
+        })
+        .then((res) => {
+          console.log(res);
+          setWeather(res);
         });
-      })
-      .then((stream) => new Response(stream))
-      .then((res) => res.json());
-  }, []);
+    } catch (err) {
+      alert(err);
+    }
+  };
 
   return (
     <div>
-      <form onSubmit={handleSearch}>
-        <input type="text" placeholder="city name here"></input>
-        <select
-          value={city}
-          onChange={(e) => {
-            setCity(e.target.value);
-          }}
-        ></select>
-        <button type="submit">🔍</button>
-      </form>
+      <Card>
+        <form onSubmit={handleSearch}>
+          <input
+            type="text"
+            placeholder="도시를 검색해보세요!"
+            value={city}
+            onChange={(e) => {
+              setCity(e.target.value);
+            }}
+          ></input>
+          <button type="submit">추가하기</button>
+        </form>
+      </Card>
     </div>
   );
 }
+
+const Card = styled.div`
+  display: block;
+  text-align: center;
+  border-radius: 10px;
+  background-color: white;
+  width: 300px;
+  height: 30px;
+  padding: 10px;
+  margin: 10px 65px;
+`;

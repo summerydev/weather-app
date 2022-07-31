@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
+
+const apiKey = process.env.REACT_APP_API_KEY;
 
 interface Weather {
   id: any;
@@ -8,27 +10,20 @@ interface Weather {
   main: any;
   sys: any;
 }
-const apiKey = process.env.REACT_APP_API_KEY;
 
-export default function Home() {
-  // console.log(apiKey);
-
-  // 초기값이 없어서 에러 -> 1. 초기값 부여 2. 없을 때를 제어
+export default function CurrentWeather() {
   const [weather, setWeather] = useState<Weather>();
 
-  // useEffect : dom 준비된 후에 1번만 실행, []디펜던시 부여
   useEffect(() => {
     function success(pos: any) {
       let lat = pos.coords.latitude;
       let lon = pos.coords.longitude;
       const url: string = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}`;
-      console.log(url);
 
       fetch(url)
         .then((res) => res.json())
         .then((result) => {
           setWeather(result);
-          console.log(weather);
         });
     }
 
@@ -48,7 +43,7 @@ export default function Home() {
               {weather.name} {weather.sys.country}
             </h2>
           </div>
-<br />
+          <br />
           <div>
             <h1>Now {Math.floor(weather.main.temp - 273)}℃</h1>
             <h2>{weather.weather[0].main}</h2>
@@ -63,7 +58,7 @@ export default function Home() {
           </Sun>
         </div>
       ) : (
-        <>Error or Loading</>
+        <h2>현재 날씨를 찾고 있어요!</h2>
       )}
     </Card>
   );
